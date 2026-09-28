@@ -30,3 +30,6 @@ releases/*.zip
 *.bak3
 *.bak*
 build_ili9341/
+build_log.txt
+crt_bundle_attach
+skip_cert_common_name_check
