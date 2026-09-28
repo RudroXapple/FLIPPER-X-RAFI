@@ -3,7 +3,9 @@
 
 static void app_store_menu_callback(void* context, uint32_t index) {
     AppStore* app = context;
-    app->selected_index = index;
+    app->selected_category = (AppStoreCategory)index;
+    app->selected_index = 0;
+    FURI_LOG_I("AppStore", "Category selected: %lu", (unsigned long)index);
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
 }
 

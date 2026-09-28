@@ -7,11 +7,12 @@
 #include <furi.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include "esp_heap_caps.h"
 
 #define APPS_JSON_URL \
     "https://raw.githubusercontent.com/RudroXapple/FLIPPER-X-ESP32S3/main/apps.json"
 
-#define APPS_JSON_MAX 8192
+#define APPS_JSON_MAX 65536
 
 /* Worker state */
 static TaskHandle_t fetch_task = NULL;
@@ -74,7 +75,8 @@ void app_store_scene_list_on_enter(void* context) {
         return;
     }
 
-    fetch_buf = malloc(APPS_JSON_MAX);
+    fetch_buf = heap_caps_malloc(APPS_JSON_MAX, MALLOC_CAP_SPIRAM);
+    if(!fetch_buf) fetch_buf = malloc(APPS_JSON_MAX);
     if(!fetch_buf) {
         show_error(app, "Out of Memory", NULL, NULL);
         return;
@@ -116,15 +118,41 @@ bool app_store_scene_list_on_event(void* context, SceneManagerEvent event) {
 
             if(fetch_ok && app->app_count > 0) {
                 submenu_reset(app->submenu);
-                submenu_set_header(app->submenu, "Available Apps");
+
+                /* category filter */
+                static const char* cat_names[] = {
+                    NULL, "Games", "Tools", "Sub-GHz",
+                    "NFC", "Infrared", "Media", "Misc"
+                };
+                const char* want = NULL;
+                if(app->selected_category < AppStoreCategoryCount) {
+                    want = cat_names[(int)app->selected_category];
+                }
+
+                char header[32];
+                if(want) snprintf(header, sizeof(header), "Apps: %s", want);
+                else     snprintf(header, sizeof(header), "All Apps");
+                submenu_set_header(app->submenu, header);
+
+                size_t shown = 0;
                 for(size_t i = 0; i < app->app_count; i++) {
+                    if(want && strcasecmp(app->apps[i].category, want) != 0) continue;
                     submenu_add_item(
                         app->submenu, app->apps[i].name, i,
                         app_store_list_item_cb, app);
+                    shown++;
+                }
+                FURI_LOG_I("AppStore", "Shown %u/%u apps",
+                           (unsigned)shown, (unsigned)app->app_count);
+                if(shown == 0) {
+                    submenu_add_item(app->submenu, "(empty)", 0, NULL, app);
                 }
                 view_dispatcher_switch_to_view(app->view_dispatcher, 0);
             } else {
-                show_error(app, "Fetch Failed", "Check internet", "Try again");
+                char err_buf[64];
+                snprintf(err_buf, sizeof(err_buf), "HTTP:%d Err:%d",
+                         app_store_last_http_code, app_store_last_esp_err);
+                show_error(app, "Fetch Failed", err_buf, "Try again");
             }
         }
         consumed = true;

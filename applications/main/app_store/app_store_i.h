@@ -35,7 +35,7 @@ typedef enum {
 #define APP_STORE_MAX_NAME     48
 #define APP_STORE_MAX_AUTHOR   32
 #define APP_STORE_MAX_URL      256
-#define APP_STORE_MAX_APPS     128
+#define APP_STORE_MAX_APPS     200
 #define APP_STORE_MAX_PATH     128
 
 typedef struct {

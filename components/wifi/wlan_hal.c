@@ -129,6 +129,16 @@ static void wlan_event_handler(void* arg, esp_event_base_t event_base, int32_t e
         s_own_ip = event->ip_info.ip.addr;
         s_own_netmask = event->ip_info.netmask.addr;
         s_wifi_connected = true;
+        esp_netif_t* nif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+        if(nif) {
+            esp_netif_dns_info_t d = {0};
+            d.ip.type = ESP_IPADDR_TYPE_V4;
+            d.ip.u_addr.ip4.addr = esp_ip4addr_aton("8.8.8.8");
+            esp_netif_set_dns_info(nif, ESP_NETIF_DNS_MAIN, &d);
+            d.ip.u_addr.ip4.addr = esp_ip4addr_aton("1.1.1.1");
+            esp_netif_set_dns_info(nif, ESP_NETIF_DNS_BACKUP, &d);
+            FURI_LOG_I("WLAN", "DNS override: 8.8.8.8 / 1.1.1.1");
+        }
         // Sync the RTC via SNTP once we have an IP. Without a correct clock
         // NTLMv2 (SMB) and anything else time-sensitive uses ~1970. UTC is
         // fine for these uses. Harmless if the network has no internet (the

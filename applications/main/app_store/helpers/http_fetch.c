@@ -1,3 +1,4 @@
+#include "esp_crt_bundle.h"
 #include "http_fetch.h"
 #include <furi.h>
 #include <storage/storage.h>
@@ -6,16 +7,23 @@
 
 #define TAG "AppStoreHTTP"
 
+int app_store_last_http_code = 0;
+int app_store_last_esp_err = 0;
+
 static void http_cfg(esp_http_client_config_t* cfg, const char* url) {
     memset(cfg, 0, sizeof(*cfg));
     cfg->url = url;
-    cfg->timeout_ms = 15000;
+    cfg->timeout_ms = 30000;
     cfg->transport_type = HTTP_TRANSPORT_OVER_SSL;
     cfg->skip_cert_common_name_check = true;
     cfg->crt_bundle_attach = NULL;
     cfg->use_global_ca_store = false;
-    cfg->buffer_size = 4096;
-    cfg->buffer_size_tx = 1024;
+    cfg->buffer_size = 8192;
+    cfg->buffer_size_tx = 2048;
+    cfg->user_agent = "FLIPPER-X-RAF/2.0";
+    cfg->disable_auto_redirect = false;
+    cfg->max_redirection_count = 3;
+    cfg->keep_alive_enable = false;
 }
 
 bool app_store_http_get_text(const char* url, char* out, size_t out_sz) {
@@ -26,23 +34,38 @@ bool app_store_http_get_text(const char* url, char* out, size_t out_sz) {
     if(!client) return false;
 
     bool ok = false;
-    if(esp_http_client_open(client, 0) == ESP_OK) {
+    app_store_last_http_code = 0;
+    app_store_last_esp_err = 0;
+
+    esp_err_t open_res = esp_http_client_open(client, 0);
+    if(open_res == ESP_OK) {
         esp_http_client_fetch_headers(client);
-        if(esp_http_client_get_status_code(client) == 200) {
+        int status = esp_http_client_get_status_code(client);
+        app_store_last_http_code = status;
+        if(status == 200) {
             size_t len = 0;
             while(len + 1 < out_sz) {
                 int r = esp_http_client_read(client, out + len, out_sz - 1 - len);
-                if(r < 0) { len = 0; break; }
+                if(r < 0) {
+                    app_store_last_esp_err = r;
+                    len = 0;
+                    break;
+                }
                 if(r == 0) break;
                 len += (size_t)r;
             }
             out[len] = '\0';
             ok = len > 0;
+            if(!ok) app_store_last_esp_err = -1;
         }
+    } else {
+        app_store_last_esp_err = open_res;
     }
     esp_http_client_close(client);
     esp_http_client_cleanup(client);
-    FURI_LOG_I(TAG, "GET %s: %s", url, ok ? "OK" : "FAIL");
+    FURI_LOG_I(TAG, "GET %s: %s (http=%d err=%d)",
+               url, ok ? "OK" : "FAIL",
+               app_store_last_http_code, app_store_last_esp_err);
     return ok;
 }
 
