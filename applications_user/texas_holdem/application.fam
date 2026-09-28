@@ -6,5 +6,6 @@ App(
     requires=["gui"],
     stack_size=4 * 1024,
     order=31,
+    fap_icon="texas_holdem_10px.png",
     fap_category="Games",
 )

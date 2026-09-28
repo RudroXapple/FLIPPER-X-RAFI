@@ -280,3 +280,6 @@ extern const Icon A_settings_button;
 extern const Icon I_menu;
 extern const Icon I_playback;
 extern const Icon I_settings;
+
+/* Extra icons from Flipper firmware */
+#include "extra_icons/extra_icons.h"

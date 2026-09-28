@@ -21,6 +21,7 @@
 #include <esp_memory_utils.h>
 #include <sdmmc_cmd.h>
 #include <driver/sdspi_host.h>
+#include <esp_task_wdt.h>
 
 static const char* TAG = "FuriHalSd";
 
@@ -570,26 +571,31 @@ static bool sd_prepare_card(void) {
     esp_err_t ret = ESP_OK;
     furi_hal_spi_bus_lock();
     do {
+        esp_task_wdt_reset();
         ret = sdspi_host_init();
         if(ret != ESP_OK) break;
 
+        esp_task_wdt_reset();
         ret = sdspi_host_init_device(&dev_cfg, &sd_handle);
         if(ret != ESP_OK) break;
 
+        esp_task_wdt_reset();
         sd_card = calloc(1, sizeof(sdmmc_card_t));
         if(sd_card == NULL) {
             ret = ESP_ERR_NO_MEM;
             break;
         }
 
+        esp_task_wdt_reset();
         host.slot = sd_handle;
         ret = sdmmc_card_init(&host, sd_card);
+        esp_task_wdt_reset();
     } while(false);
     furi_hal_spi_bus_unlock();
 
     if(ret != ESP_OK) {
         ESP_LOGE(TAG, "SD init failed: %s", esp_err_to_name(ret));
-        sd_run_mount_diagnostics(&dev_cfg, &host);
+        /* sd_run_mount_diagnostics disabled for boot-loop fix */
         sd_release_host();
         return false;
     }
@@ -613,8 +619,7 @@ bool furi_hal_sd_is_present(void) {
         return false;
     }
 
-    /* Without a detect pin, try init on demand and let the mount logic decide. */
-    return true;
+    return true;  /* SD enabled with fast retry + WDT protection */
 }
 
 FuriStatus furi_hal_sd_init(bool power_reset) {
@@ -656,7 +661,7 @@ FuriStatus furi_hal_sd_info(FuriHalSdInfo* info) {
 }
 
 uint8_t furi_hal_sd_max_mount_retry_count(void) {
-    return 3;
+    return 1;
 }
 
 bool furi_hal_sd_mount(void) {

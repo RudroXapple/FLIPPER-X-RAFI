@@ -25,3 +25,8 @@ releases/*.zip
 *-backup-*
 *.backup-*
 /tmp/
+*.bak
+*.bak2
+*.bak3
+*.bak*
+build_ili9341/

@@ -7,7 +7,8 @@
  */
 
 #pragma once
-
+#include <stddef.h>
+#include <stdint.h>
 #include <furi.h>
 #include <input.h>
 

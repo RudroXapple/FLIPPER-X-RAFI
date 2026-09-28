@@ -20,7 +20,8 @@
 #include <lwip/netif.h>
 #include <lwip/tcpip.h>
 #include <esp_netif.h>
-
+struct netif;
+void* esp_netif_get_netif_impl(esp_netif_t* esp_netif);
 #define TAG "PrintHijack"
 
 #define MDNS_PORT   5353

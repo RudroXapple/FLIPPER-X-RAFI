@@ -13,7 +13,7 @@
 
 /* ---- Board metadata ---- */
 #define BOARD_NAME        "Waveshare ESP32-C6-LCD-1.47"
-/* Kurz-ID = Release-Ordner unter https://sor3nt.github.io/release/<BOARD_ID>/latest */
+/* Kurz-ID = Release-Ordner unter https://flipper-x-rafi.github.io/release/<BOARD_ID>/latest */
 #define BOARD_ID          "waveshare_c6_1.47"
 #define BOARD_TARGET      "esp32c6"
 

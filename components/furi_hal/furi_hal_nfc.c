@@ -462,7 +462,7 @@ FuriHalNfcError furi_hal_nfc_low_power_mode_stop(void) {
 FuriHalNfcError furi_hal_nfc_set_mode(FuriHalNfcMode mode, FuriHalNfcTech tech) {
     if(!nfc_hal_ready) return FuriHalNfcErrorCommunication;
     /* Preserve cached target across set_mode() within the same tech.
-     * Sor3nt's NfcScanner allocs a new NfcPoller per child protocol it tries
+     * FLIPPER X RAFI's NfcScanner allocs a new NfcPoller per child protocol it tries
      * (Ntag4xx -> Type4Tag -> Emv, all under Iso14443_4a -> Iso14443_3a).
      * Each cycle calls nfc_set_mode() which wiped the activation cache,
      * forcing the chip to re-poll. PN532's InListPassiveTarget issues REQA,

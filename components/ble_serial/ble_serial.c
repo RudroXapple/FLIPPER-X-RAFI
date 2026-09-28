@@ -365,8 +365,8 @@ static const uint8_t dis_api_version_uuid[16] = {
 };
 
 static const char dis_manufacturer[] = "Flipper Devices Inc.";
-static const char dis_hw_revision[] = "ESP32-C6 1.0";
-static const char dis_sw_revision[] = "1.4.3";
+static const char dis_hw_revision[] = "ESP32-S3 1.0";
+static const char dis_sw_revision[] = "2.0.0";
 /* API version format: "major.minor" — pulled from the protobuf header so it
  * stays in sync with rpc_system. Anything < 0.6 makes the Flipper iOS app
  * report "Outdated Firmware Version"; anything >= 1.0 makes it report

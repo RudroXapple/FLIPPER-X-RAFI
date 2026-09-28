@@ -51,6 +51,7 @@ APPS = [
     "ota_updater",
     "streaming",
     "nrf24",
+    "app_store",
     "ble_spam",
     "js_app",
     "js_event_loop",

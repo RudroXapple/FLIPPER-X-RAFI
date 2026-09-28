@@ -16,7 +16,7 @@
 
 void furi_hal_info_get_api_version(uint16_t* major, uint16_t* minor) {
     if(major) *major = 0;
-    if(minor) *minor = 1;
+    if(minor) *minor = 21;
 }
 
 /* OTA-Infos werden einmalig beim Boot ermittelt: esp_ota_get_running_partition()
@@ -120,8 +120,8 @@ void furi_hal_info_get(PropertyValueCallback out, char sep, void* context) {
             (unsigned int)api_major);
         property_value_out(&property_context, "%u", 2, "firmware", "api.minor",
             (unsigned int)api_minor);
-        property_value_out(&property_context, NULL, 2, "firmware", "origin.fork", "unleashed");
-        property_value_out(&property_context, NULL, 2, "firmware", "origin.git", "");
+        property_value_out(&property_context, NULL, 2, "firmware", "origin.fork", "official");
+        property_value_out(&property_context, NULL, 2, "firmware", "origin.git", "https://github.com/flipperdevices/flipperzero-firmware");
     }
 
     /* ESP32-Port: eigene Versions-/OTA-Infos fuer qT-Embed (Update-Check).

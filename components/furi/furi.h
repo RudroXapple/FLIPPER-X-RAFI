@@ -1,5 +1,6 @@
 #pragma once
-
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 #include "core/common_defines.h"

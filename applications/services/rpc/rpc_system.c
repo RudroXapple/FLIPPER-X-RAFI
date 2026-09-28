@@ -112,7 +112,7 @@ static void rpc_system_system_device_info_process(const PB_Main* request, void* 
         .session = session,
         .response = response,
     };
-    furi_hal_info_get(rpc_system_system_device_info_callback, '_', &device_info_context);
+    furi_hal_info_get(rpc_system_system_device_info_callback, '.', &device_info_context);
 
     free(response);
 }

@@ -9,6 +9,7 @@
 #include "furi_hal_light.h"
 #include "furi_hal_resources.h"
 #include "furi_hal_spi_bus.h"
+#include "furi_hal_oled.h"
 #include "boards/board.h"
 
 #include <string.h>
@@ -285,6 +286,9 @@ void furi_hal_display_init(void) {
 
     ESP_LOGI(TAG, "Display initialized (%dx%d, scaled %dx%d, stripe=%d lines, buf=%d bytes)",
              FB_WIDTH, FB_HEIGHT, SCALED_WIDTH, SCALED_HEIGHT, STRIPE_HEIGHT, (int)stripe_bytes);
+
+    /* Initialize secondary OLED (SSD1306/SH1106) if available */
+    furi_hal_oled_init();
 }
 
 void furi_hal_display_commit(const uint8_t* data, uint32_t size) {
@@ -356,6 +360,9 @@ void furi_hal_display_commit(const uint8_t* data, uint32_t size) {
     }
 
     furi_hal_spi_bus_unlock();
+
+    /* Mirror framebuffer to secondary OLED (native 128x64, 1:1) */
+    furi_hal_oled_commit(data, size);
 }
 
 void furi_hal_display_set_backlight(uint8_t brightness) {
@@ -378,6 +385,9 @@ void furi_hal_display_sleep(void) {
     esp_lcd_panel_disp_sleep(panel_handle, true);
     furi_hal_spi_bus_unlock();
     panel_is_asleep = true;
+
+    /* Also put OLED to sleep */
+    furi_hal_oled_sleep();
 }
 
 void furi_hal_display_wakeup(void) {
@@ -388,6 +398,9 @@ void furi_hal_display_wakeup(void) {
     esp_lcd_panel_disp_on_off(panel_handle, true);
     furi_hal_spi_bus_unlock();
     panel_is_asleep = false;
+
+    /* Also wake OLED */
+    furi_hal_oled_wakeup();
 }
 
 bool furi_hal_display_is_asleep(void) {

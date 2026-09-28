@@ -18,6 +18,7 @@ declare -A TARGETS=(
     ["waveshare_c6_1.9"]="esp32c6"
     ["waveshare_c6_1.47"]="esp32c6"
     ["t_embed"]="esp32s3"
+    ["esp32s3_ili9341"]="esp32s3"
 )
 declare -A NAMES=(
     ["esp32s3"]="esp32s3_generic"
@@ -25,6 +26,7 @@ declare -A NAMES=(
     ["waveshare_c6_1.9"]="waveshare_c6_1.9"
     ["waveshare_c6_1.47"]="waveshare_c6_1.47"
     ["t_embed"]="lilygo_t_embed_cc1101"
+    ["esp32s3_ili9341"]="esp32s3_ili9341"
 )
 declare -A DIRS=(
     ["esp32s3"]="build_s3"
@@ -32,6 +34,7 @@ declare -A DIRS=(
     ["waveshare_c6_1.9"]="build_waveshare_c6"
     ["waveshare_c6_1.47"]="build_waveshare_c6_1.47"
     ["t_embed"]="build_t_embed"
+    ["esp32s3_ili9341"]="build_ili9341"
 )
 
 usage() {

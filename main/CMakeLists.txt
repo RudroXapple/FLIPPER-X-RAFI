@@ -69,6 +69,8 @@ if(NOT CMAKE_SCRIPT_MODE_FILE)
         idf::toolbox
         idf::esp_http_client
         idf::esp_http_server
+        idf::json
+        idf::wifi
         idf::lfrfid
         idf::mjs
         idf::libsmb2

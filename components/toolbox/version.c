@@ -16,14 +16,14 @@ struct Version {
 };
 
 static Version firmware_version = {
-    .git_hash = "esp32-dev",
-    .git_branch = "esp32-port",
+    .git_hash = "rafi-dev",
+    .git_branch = "flipper-x-rafi",
     .git_branch_num = "0",
     .build_date = __DATE__,
-    .version = "1.4.3",
+    .version = "2.0.0",
     .custom_name = NULL,
-    .firmware_origin = "ESP32 Port",
-    .git_origin = "local",
+    .firmware_origin = "FLIPPER X RAFI",
+    .git_origin = "github.com/RudroXapple",
     .target = 32,
     .dirty_flag = true,
 };

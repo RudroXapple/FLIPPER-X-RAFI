@@ -3,6 +3,8 @@
 #include <furi_hal_gpio.h>
 #include <esp_log.h>
 #include <nvs_flash.h>
+#include "furi_hal_oled_status.h"
+#include "furi_hal_oled.h"
 
 static const char* TAG = "FuriHal";
 
@@ -49,16 +51,32 @@ void furi_hal_init(void) {
         nvs_flash_init();
     }
 
+    oled_status_boot_log("NVS OK");
     furi_hal_rtc_init();
+    oled_status_boot_log("RTC OK");
     furi_hal_version_init();
+    oled_status_boot_log("Version OK");
     furi_hal_info_init();
+    oled_status_boot_log("Info OK");
     furi_hal_power_init();
+    oled_status_boot_log("Power OK");
     furi_hal_crypto_init();
+    oled_status_boot_log("Crypto OK");
     furi_hal_subghz_init();
+    oled_status_boot_log("SubGHz OK");
     furi_hal_usb_init();
+    oled_status_boot_log("USB OK");
     furi_hal_light_init();
-    furi_hal_display_init();
+    oled_status_boot_log("Light OK");
+    furi_hal_display_init();  /* ← OLED init happens here */
+    oled_status_boot_log("Display OK");
+    furi_hal_oled_scan();
+    oled_status_show_boot_log();  /* Show boot log on OLED now */
     furi_hal_speaker_init();
+    oled_status_boot_log("Speaker OK");
     furi_hal_nfc_init();
+    oled_status_boot_log("NFC OK");
+    oled_status_boot_log("System ready");
+    oled_status_show_system();  /* Show final system status */
     ESP_LOGI(TAG, "Init complete");
 }

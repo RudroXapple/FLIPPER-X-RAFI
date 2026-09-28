@@ -1,0 +1,12 @@
+App(
+    appid="app_store",
+    name="App Store",
+    apptype=FlipperAppType.MENUEXTERNAL,
+    entry_point="app_store_app",
+    cdefines=["APP_STORE"],
+    requires=["gui", "storage", "notification", "wifi"],
+    stack_size=48 * 1024,
+    icon="A_Plugins_14",
+    order=68,
+    fap_libs=["assets"],
+)
