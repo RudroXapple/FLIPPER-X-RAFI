@@ -112,6 +112,15 @@ bool app_store_scene_list_on_event(void* context, SceneManagerEvent event) {
         scene_manager_previous_scene(app->scene_manager);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
+        if(!fetch_done) {
+            static uint8_t spin_idx = 0;
+            static const char spinner[] = "|/-\\";
+            char s[32];
+            snprintf(s, sizeof(s), "Loading %c  %c", spinner[spin_idx],
+                     spinner[(spin_idx + 2) & 3]);
+            spin_idx = (spin_idx + 1) & 3;
+            submenu_set_header(app->submenu, s);
+        }
         if(fetch_done) {
             fetch_done = false;
             fetch_task = NULL;
@@ -129,23 +138,55 @@ bool app_store_scene_list_on_event(void* context, SceneManagerEvent event) {
                     want = cat_names[(int)app->selected_category];
                 }
 
-                char header[32];
-                if(want) snprintf(header, sizeof(header), "Apps: %s", want);
-                else     snprintf(header, sizeof(header), "All Apps");
-                submenu_set_header(app->submenu, header);
+                /* icon per category */
+                static const char* cat_icon[] = {
+                    "*", "G", "T", "S", "N", "I", "M", "X"
+                };
+                const char* icon = "*";
+                if(app->selected_category < AppStoreCategoryCount)
+                    icon = cat_icon[(int)app->selected_category];
 
+                /* Pass 1: count matches */
                 size_t shown = 0;
                 for(size_t i = 0; i < app->app_count; i++) {
                     if(want && strcasecmp(app->apps[i].category, want) != 0) continue;
-                    submenu_add_item(
-                        app->submenu, app->apps[i].name, i,
-                        app_store_list_item_cb, app);
                     shown++;
+                }
+
+                /* Header with count */
+                char header[48];
+                if(want)
+                    snprintf(header, sizeof(header), "%s %s  %u apps",
+                             icon, want, (unsigned)shown);
+                else
+                    snprintf(header, sizeof(header), "%s All Apps  %u",
+                             icon, (unsigned)shown);
+                submenu_set_header(app->submenu, header);
+
+                /* Pass 2: add items with prefix */
+                for(size_t i = 0; i < app->app_count; i++) {
+                    if(want && strcasecmp(app->apps[i].category, want) != 0) continue;
+                    char label[64];
+                    if(app->apps[i].size > 1024)
+                        snprintf(label, sizeof(label), "%s %s (%uK)",
+                                 icon, app->apps[i].name,
+                                 (unsigned)(app->apps[i].size / 1024));
+                    else
+                        snprintf(label, sizeof(label), "%s %s",
+                                 icon, app->apps[i].name);
+                    submenu_add_item(
+                        app->submenu, label, i,
+                        app_store_list_item_cb, app);
                 }
                 FURI_LOG_I("AppStore", "Shown %u/%u apps",
                            (unsigned)shown, (unsigned)app->app_count);
+
+                /* Empty category message */
                 if(shown == 0) {
-                    submenu_add_item(app->submenu, "(empty)", 0, NULL, app);
+                    submenu_add_item(app->submenu, "No apps in this category",
+                                     0, NULL, app);
+                    submenu_add_item(app->submenu, "Try another section",
+                                     0, NULL, app);
                 }
                 view_dispatcher_switch_to_view(app->view_dispatcher, 0);
             } else {
